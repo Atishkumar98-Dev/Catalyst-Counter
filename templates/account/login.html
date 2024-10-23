@@ -5,14 +5,63 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% trans "Login" %}</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa; /* Light gray background */
+        }
+        .card {
+            border: none;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        form p{
+            display: flex;
+            flex-direction: column;
+            
+        }
+        #id_remember {
+    display: none;
+}
+label[for="id_remember"] {
+    display: none;
+}
+        form p span{
+            display: none;
+        }
+        .form-control:focus {
+            box-shadow: none;
+            border-color: #007bff; /* Bootstrap primary color */
+        }
+    </style>
 </head>
 <body>
-    <h2>{% trans "Login" %}</h2>
-    <form method="post" action="{% url 'account_login' %}">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">{% trans "Login" %}</button>
-    </form>
-    <p><a href="{% url 'account_signup' %}">{% trans "Sign up" %}</a></p>
+    <div class="container d-flex align-items-center justify-content-center vh-100">
+        <div class="card p-4" style="width: 400px;">
+            <h2 class="text-center mb-4">{% trans "Login" %}</h2>
+            <form method="post" action="{% url 'account_login' %}">
+                {% csrf_token %}
+                {{ form.as_p }}
+                
+                <div class="form-group form-check">
+                    <input type="checkbox" class="form-check-input" id="rememberMe" name="remember">
+                    <label class="form-check-label" for="rememberMe">{% trans "Remember me" %}</label>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">{% trans "Login" %}</button>
+            </form>
+            <p class="text-center mt-3">
+                <a href="{% url 'account_signup' %}">{% trans "Sign up" %}</a>
+            </p>
+            <p class="text-center mt-3">
+                <a href="{% url 'account_reset_password' %}">{% trans "Forgot your password?" %}</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies (optional) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

@@ -1,0 +1,9 @@
+<h1>Query Builder</h1>
+<form method="get">
+    {{ form.as_p }}
+    <button type="submit">Search</button>
+</form>
+
+{% if results is not None %}
+    <h2>Records matching the filters: {{ results }}</h2>
+{% endif %}
