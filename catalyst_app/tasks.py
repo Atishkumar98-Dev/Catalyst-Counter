@@ -1,4 +1,3 @@
-# tasks.py
 import csv
 import os
 from celery import shared_task
@@ -11,6 +10,7 @@ def process_csv(file_path):
         reader = csv.DictReader(decoded_file)
 
         for row in reader:
+            # Check for blank fields (only save rows that have all required fields)
             if all(row[field] for field in ['name', 'domain', 'year founded', 'industry', 
                                              'size range', 'locality', 'country', 
                                              'linkedin url', 'current employee estimate', 
@@ -28,5 +28,5 @@ def process_csv(file_path):
                     total_employee_estimate=row['total employee estimate']
                 )
 
-    # Clean up the temporary file
+    # Optional: Clean up the temporary file after processing
     os.remove(file_path)
