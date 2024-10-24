@@ -57,7 +57,7 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 1024 * 1024 * 1024
 SITE_ID = 1
 
 LOGIN_REDIRECT_URL = '/upload/'
-LOGOUT_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/accounts/'
 
 CELERY_BROKER_URL = 'redis://localhost:6379/0'  
 # or

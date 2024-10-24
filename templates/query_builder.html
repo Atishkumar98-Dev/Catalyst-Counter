@@ -2,6 +2,7 @@
 {% block content %}
 <form id="filterForm" method="get" action="{% url 'query_builder' %}" class="mb-4">
     <div class="form-row">
+        
         <div class="form-group col-md-4">
             <label for="company_name">Company Name:</label>
             <input type="text" class="form-control" id="company_name" name="name" value="{{ request.GET.name }}">

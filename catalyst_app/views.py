@@ -4,14 +4,16 @@ from .models import Company
 import csv
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-
-
+from django.contrib.auth.models import User
+from django.contrib.auth.forms import UserCreationForm
 import csv
 import os
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 import csv
+from django.urls import reverse_lazy
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.http import HttpResponse
 from django.shortcuts import render
 from .models import Company
@@ -63,27 +65,27 @@ def upload_csv(request):
 
 
 
-@api_view(['GET'])
-def filter_companies(request):
-    filters = {}
-    if 'name' in request.GET:
-        filters['name__icontains'] = request.GET['name']
-    if 'industry' in request.GET:
-        filters['industry__icontains'] = request.GET['industry']
-    if 'country' in request.GET:
-        filters['country__icontains'] = request.GET['country']
-    if 'current_employee_estimate__gte' in request.GET:
-        filters['current_employee_estimate__gte'] = request.GET['current_employee_estimate__gte']
-    if 'current_employee_estimate__lte' in request.GET:
-        filters['current_employee_estimate__lte'] = request.GET['current_employee_estimate__lte']
+# @api_view(['GET'])
+# def filter_companies(request):
+#     filters = {}
+#     if 'name' in request.GET:
+#         filters['name__icontains'] = request.GET['name']
+#     if 'industry' in request.GET:
+#         filters['industry__icontains'] = request.GET['industry']
+#     if 'country' in request.GET:
+#         filters['country__icontains'] = request.GET['country']
+#     if 'current_employee_estimate__gte' in request.GET:
+#         filters['current_employee_estimate__gte'] = request.GET['current_employee_estimate__gte']
+#     if 'current_employee_estimate__lte' in request.GET:
+#         filters['current_employee_estimate__lte'] = request.GET['current_employee_estimate__lte']
 
-    count = Company.objects.filter(**filters).count()
-    return Response({'count': count})
-
-
+#     count = Company.objects.filter(**filters).count()
+#     return Response({'count': count})
 
 
 
+
+@login_required
 def query_builder(request):
     form = QueryForm(request.GET or None)
     if form.is_valid():
@@ -109,6 +111,7 @@ def query_builder(request):
             filters['current_employee_estimate'] = current_employee_estimate
         if total_employee_estimate is not None:
             filters['total_employee_estimate'] = total_employee_estimate
+        
         filtered_companies = Company.objects.filter(**filters)
         count = filtered_companies.count()
 
@@ -131,3 +134,30 @@ def query_builder(request):
         }
 
     return render(request, 'query_builder.html', context)
+
+
+
+class UserListView(ListView):
+    model = User
+    template_name = 'user/user_list.html'
+    context_object_name = 'users'
+
+# User Create View
+class UserCreateView(CreateView):
+    model = User
+    form_class = UserCreationForm
+    template_name = 'user/user_form.html'
+    success_url = reverse_lazy('user_list')
+
+# User Update View
+class UserUpdateView(UpdateView):
+    model = User
+    form_class = UserCreationForm  # You can create a custom form if needed
+    template_name = 'user/user_form.html'
+    success_url = reverse_lazy('user_list')
+
+# User Delete View
+class UserDeleteView(DeleteView):
+    model = User
+    template_name = 'user/user_confirm_delete.html'
+    success_url = reverse_lazy('user_list')
