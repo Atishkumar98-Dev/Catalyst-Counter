@@ -1,16 +1,135 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% extends 'base.html' %}
+{% block content %}
     <title>Upload CSV</title>
-</head>
-<body>
-    <h1>Upload CSV File</h1>
-    <form id="uploadForm" enctype="multipart/form-data" method="post" action="{% url 'upload_csv' %}">
-        {% csrf_token %}  <!-- Include CSRF token for security -->
-        <input type="file" name="file" required>
-        <button type="submit">Upload CSV</button>
+    <style>
+        /* Styles for the progress bar */
+        #progressWrapper {
+            width: 100%;
+            background-color: #f3f3f3;
+            border-radius: 5px;
+            margin-top: 10px;
+            display: none; /* Initially hidden */
+        }
+        #progressBar {
+            width: 0%;
+            height: 20px;
+            background-color: #4caf50;
+            text-align: center;
+            line-height: 20px;
+            color: white;
+            border-radius: 5px;
+        }
+        .form-update {
+            display: flex;
+            margin: 5%;
+            flex-direction: column;
+        }
+        .file-path {
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            cursor: text; /* Indicate that the text can be selected */
+        }
+        .copy-btn {
+            margin-top: 10px;
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .copy-btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+
+    <h6 class="mt-4">Upload CSV File</h6>
+    <form id="uploadForm" class="mt-4 form-update" enctype="multipart/form-data" method="post" action="{% url 'upload_csv' %}">
+        {% csrf_token %}
+        <input type="file" name="file" id="fileInput" required>
+        <button type="submit" class="mt-4 btn btn-outline-success">Upload CSV</button>
     </form>
-</body>
-</html>
+
+    <!-- Progress bar to show file upload progress -->
+    <div id="progressWrapper">
+        <div id="progressBar">0%</div>
+    </div>
+
+    <!-- Display file path after upload -->
+    <div id="filePathContainer" style="display:none;">
+        <div id="filePath" class="file-path"></div>
+        <button id="copyButton" class="copy-btn">Copy File Path</button>
+    </div>
+
+    <!-- JavaScript to handle file upload progress and display file path -->
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent the default form submission
+            
+            let form = event.target;
+            let fileInput = document.getElementById('fileInput');
+            let formData = new FormData(form);
+
+            // Ensure a file is selected before submission
+            if (!fileInput.files.length) {
+                alert('Please select a file to upload.');
+                return;
+            }
+
+            let xhr = new XMLHttpRequest();
+
+            // Update the progress bar as the upload progresses
+            xhr.upload.addEventListener('progress', function(event) {
+                if (event.lengthComputable) {
+                    let percentComplete = (event.loaded / event.total) * 100;
+                    let progressBar = document.getElementById('progressBar');
+                    let progressWrapper = document.getElementById('progressWrapper');
+                    progressWrapper.style.display = 'block'; // Show the progress bar
+                    progressBar.style.width = percentComplete + '%';
+                    progressBar.textContent = Math.round(percentComplete) + '%';
+                }
+            });
+
+            // Handle the server's response after upload
+            xhr.addEventListener('load', function() {
+                if (xhr.status === 200) {
+                    let response = JSON.parse(xhr.responseText); // Parse JSON response
+                    alert('File uploaded successfully!');
+                    
+                    // Display the file path
+                    document.getElementById('filePath').textContent = response.file_path;
+                    document.getElementById('filePathContainer').style.display = 'block'; // Show file path container
+                    
+                    form.reset();
+                    document.getElementById('progressBar').style.width = '0%';
+                    document.getElementById('progressWrapper').style.display = 'none'; // Hide progress bar
+                } else {
+                    alert('File upload failed: ' + xhr.statusText);
+                }
+            });
+
+            // Error handling
+            xhr.addEventListener('error', function() {
+                alert('An error occurred while uploading the file.');
+            });
+
+            // Send the AJAX request
+            xhr.open('POST', form.action, true);
+            xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}'); // Include CSRF token in the request
+            xhr.send(formData);
+        });
+
+        // Copy file path to clipboard
+        document.getElementById('copyButton').addEventListener('click', function() {
+            const filePath = document.getElementById('filePath').textContent;
+            navigator.clipboard.writeText(filePath).then(() => {
+                alert('File path copied to clipboard!');
+            }).catch(err => {
+                alert('Failed to copy file path: ', err);
+            });
+        });
+    </script>
+{% endblock content %}
